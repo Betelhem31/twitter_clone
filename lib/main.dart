@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:twitter_clone/sign_up.dart';
 
 void main() {
@@ -40,6 +41,14 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+             FaIcon(
+              FontAwesomeIcons.twitter,
+              size: 70,
+              color: Colors.blue,
+            ),
+            SizedBox(
+              height: 20
+            ),
             Text(
               "Log in to Twitter",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -107,7 +116,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     }
                   },
                   child: Text(
-                    "Submit",
+                    "Log In",
                     style: TextStyle(color: Colors.white, fontSize: 18),
                   )),
             ),
