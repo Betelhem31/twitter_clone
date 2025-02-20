@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:twitter_clone/sign_up.dart';
 
 void main() {
   runApp(const MyApp());
@@ -32,49 +33,90 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Twitter Clone")),
       body: Form(
         //alows us to validate both text fields instade of doing it indivisually
         //to find this specific form we us key
         key: _signInKey,
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            TextFormField(
-              controller: _emailController,
-              keyboardType: TextInputType.emailAddress,
-              decoration: InputDecoration(hintText: "Enter an Email"),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return "Please enter an email";
-                } else if (!emailValid.hasMatch(value)) {
-                  return "Please enter a valid email";
-                }
-                 //Regular Expresstion
-                return null;
-              },
+            Text(
+              "Log in to Twitter",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            TextFormField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: InputDecoration(hintText: "Enter a Password"),
-              //define what is valid for password (value) -what is currently in text field
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return "Please enter a password";
-                } else if (value.length < 6) {
-                  return "Pssword must be at least 6 characters";
-                }
-                return null;
-              },
-            ),
-            ElevatedButton(
-                onPressed: () {
-                  if (_signInKey.currentState!.validate()) {
-                    debugPrint("Email: $_emailController");
-                    debugPrint("Password: $_passwordController");
+            Container(
+              padding: EdgeInsets.symmetric(vertical: 10),
+              margin: EdgeInsets.fromLTRB(15, 30, 15, 0),
+              decoration: BoxDecoration(
+                  color: Colors.grey.shade200,
+                  borderRadius: BorderRadius.circular(30)),
+              child: TextFormField(
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecoration(
+                    hintText: "Enter an Email",
+                    border: InputBorder.none,
+                    contentPadding:
+                        EdgeInsets.symmetric(vertical: 15, horizontal: 20)),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Please enter an email";
+                  } else if (!emailValid.hasMatch(value)) {
+                    return "Please enter a valid email";
                   }
+                  //Regular Expresstion
+                  return null;
                 },
-                child: Text("Submit"))
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.symmetric(vertical: 10),
+              margin: EdgeInsets.all(15),
+              decoration: BoxDecoration(
+                  color: Colors.grey.shade200,
+                  borderRadius: BorderRadius.circular(30)),
+              child: TextFormField(
+                controller: _passwordController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                  hintText: "Enter a Password",
+                  border: InputBorder.none,
+                ),
+                //define what is valid for password (value) -what is currently in text field
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Please enter a password";
+                  } else if (value.length < 6) {
+                    return "Pssword must be at least 6 characters";
+                  }
+                  return null;
+                },
+              ),
+            ),
+            Container(
+              width: 250,
+              decoration: BoxDecoration(
+                  color: Colors.blue, borderRadius: BorderRadius.circular(30)),
+              child: TextButton(
+                  onPressed: () {
+                    if (_signInKey.currentState!.validate()) {
+                      debugPrint("Email: $_emailController");
+                      debugPrint("Password: $_passwordController");
+                    }
+                  },
+                  child: Text(
+                    "Submit",
+                    style: TextStyle(color: Colors.white, fontSize: 18),
+                  )),
+            ),
+            TextButton(
+                onPressed: () {
+                  Navigator.of(context)
+                      .push(MaterialPageRoute(builder: (context) => SignUp()));
+                },
+                child: Text("Don't have an account? Sign up here"))
           ],
         ),
       ),
