@@ -65,21 +65,33 @@ class LocalUser {
 
 class UserNotifier extends StateNotifier<LocalUser> {
   UserNotifier()
-      : super(LocalUser(id: "error", user: FirebaseUser(email: 'error')));
+      : super(LocalUser(
+            id: "error",
+            user: FirebaseUser(
+                email: 'error', name: 'error', profilePicture: 'error')));
 
   //so when ever user creats an account we get authentication and te database added so for that we need to acess firestore
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   //so ow we start to implement all the futures
   Future<void> signUP(String email) async {
     //add function returns DocumentRefernce type
-    DocumentReference response = await _firestore
-        .collection("users")
-        .add(FirebaseUser(email: email).toMap()
+    DocumentReference response = await _firestore.collection("users").add(
+        FirebaseUser(
+                email: email,
+                name: 'No Name',
+                profilePicture:
+                    'https://media.istockphoto.com/id/482964331/vector/breaking-chains-african-american-hands-and-arms.webp?a=1&b=1&s=612x612&w=0&k=20&c=MYC4DoPUo9Of2310GhhZLkScMB4SRXXZwT3Nh_wqgak=')
+            .toMap()
 
-            //we need a data class to make sure we pas the right data
-            );
+        //we need a data class to make sure we pas the right data
+        );
+    DocumentSnapshot snapshot = await response.get();
+
     //now we set our state
-    state = LocalUser(id: response.id, user: FirebaseUser(email: email));
+
+    state = LocalUser(
+        id: response.id,
+        user: FirebaseUser.fromMap(snapshot.data() as Map<String, dynamic>));
   }
 
   //here login should be named retriveuserinformation instade of login because we are not doing any login here cuz autentication is takingcare of that here we just get that information also sinup -- adduserto the data
@@ -93,16 +105,21 @@ class UserNotifier extends StateNotifier<LocalUser> {
       print("No firestore user associated to autenticated email $email");
       return;
     }
-     if (response.docs.length !=1) {
+    if (response.docs.length != 1) {
       print("No firestore user associated with email $email");
       return;
     }
 
-    state =
-        LocalUser(id: response.docs[0].id, user: FirebaseUser(email: email));
+    state = LocalUser(
+        id: response.docs[0].id,
+        user: FirebaseUser.fromMap(
+            response.docs[0].data() as Map<String, dynamic>));
   }
 
   void logout() {
-    state = LocalUser(id: "error", user: FirebaseUser(email: 'error'));
+    state = LocalUser(
+        id: "error",
+        user: FirebaseUser(
+            email: 'error', name: 'error', profilePicture: 'error'));
   }
 }

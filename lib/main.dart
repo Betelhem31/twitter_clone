@@ -6,6 +6,7 @@ import 'package:twitter_clone/firebase_options.dart';
 import 'package:twitter_clone/pages/home.dart';
 
 import 'package:twitter_clone/pages/sign_in.dart';
+import 'package:twitter_clone/provider/user_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,17 +14,18 @@ void main() async {
   runApp(ProviderScope(child: const MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
       //stream builder listens strings in this case the authentication caming back from firebase
       home: StreamBuilder<User?>(
           stream: FirebaseAuth.instance.authStateChanges(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
+              ref.read(userProvider.notifier).login(snapshot.data!.email!);
               return Home();
             }
             return SignIn();
