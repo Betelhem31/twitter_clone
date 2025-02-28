@@ -1,18 +1,24 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:twitter_clone/provider/user_provider.dart';
 
-class SignUp extends StatefulWidget {
+class SignUp extends ConsumerStatefulWidget {
   const SignUp({super.key});
 
   @override
-  State<SignUp> createState() => _SignUpState();
+  ConsumerState<SignUp> createState() => _SignUpState();
 }
 
-class _SignUpState extends State<SignUp> {
+class _SignUpState extends ConsumerState<SignUp> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   //to manage what is inside our text field we define controllers
   final GlobalKey<FormState> _signInKey = GlobalKey();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
   final RegExp emailValid = RegExp(
       r"^([0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*@(([0-9a-zA-Z])+([-\w]*[0-9a-zA-Z])*\.)+[a-zA-Z]{2,9})$");
   @override
@@ -42,7 +48,7 @@ class _SignUpState extends State<SignUp> {
                   color: Colors.grey.shade200,
                   borderRadius: BorderRadius.circular(30)),
               child: TextFormField(
-                controller: _emailController,
+                controller: emailController,
                 keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
                     hintText: "Enter an Email",
@@ -67,7 +73,7 @@ class _SignUpState extends State<SignUp> {
                   color: Colors.grey.shade200,
                   borderRadius: BorderRadius.circular(30)),
               child: TextFormField(
-                controller: _passwordController,
+                controller: passwordController,
                 obscureText: true,
                 decoration: InputDecoration(
                   contentPadding:
@@ -91,10 +97,22 @@ class _SignUpState extends State<SignUp> {
               decoration: BoxDecoration(
                   color: Colors.blue, borderRadius: BorderRadius.circular(30)),
               child: TextButton(
-                  onPressed: () {
+                  onPressed: () async {
                     if (_signInKey.currentState!.validate()) {
-                      debugPrint("Email: $_emailController");
-                      debugPrint("Password: $_passwordController");
+                      try {
+                        await _auth.createUserWithEmailAndPassword(
+                            email: emailController.text,
+                            password: passwordController.text);
+                        //so after we authenticate them
+                        await ref
+                            .read(userProvider.notifier)
+                            .signUP(emailController.text);
+                        if (!mounted) return;
+                        Navigator.pop(context);
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(e.toString())));
+                      }
                     }
                   },
                   child: Text(
