@@ -83,4 +83,5 @@ class DefaultFirebaseOptions {
     authDomain: 'offical-twitter-bc63e.firebaseapp.com',
     storageBucket: 'offical-twitter-bc63e.firebasestorage.app',
   );
+
 }

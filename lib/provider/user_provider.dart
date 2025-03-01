@@ -1,8 +1,10 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 //we use statenotifier to add functions to the states like signin and to give the state whenever it is needed
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:twitter_clone/models/user.dart';
 
@@ -68,10 +70,13 @@ class UserNotifier extends StateNotifier<LocalUser> {
       : super(LocalUser(
             id: "error",
             user: FirebaseUser(
-                email: 'error', name: 'error', profilePicture: 'error')));
+                email: 'error',
+                name: 'error',
+                profilePicture: 'assets/twitter.png'))) {}
 
   //so when ever user creats an account we get authentication and te database added so for that we need to acess firestore
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
   //so ow we start to implement all the futures
   Future<void> signUP(String email) async {
     //add function returns DocumentRefernce type
@@ -79,8 +84,7 @@ class UserNotifier extends StateNotifier<LocalUser> {
         FirebaseUser(
                 email: email,
                 name: 'No Name',
-                profilePicture:
-                    'https://media.istockphoto.com/id/482964331/vector/breaking-chains-african-american-hands-and-arms.webp?a=1&b=1&s=612x612&w=0&k=20&c=MYC4DoPUo9Of2310GhhZLkScMB4SRXXZwT3Nh_wqgak=')
+                profilePicture: 'assets/twitter.png')
             .toMap()
 
         //we need a data class to make sure we pas the right data
@@ -116,10 +120,28 @@ class UserNotifier extends StateNotifier<LocalUser> {
             response.docs[0].data() as Map<String, dynamic>));
   }
 
+  Future<void> updateName(String name) async {
+    await _firestore.collection("users").doc(state.id).update({'name': name});
+    state = state.copyWith(user: state.user.copyWith(name: name));
+  }
+
+  Future<void> updateImage(File image) async {
+    Reference ref = _storage.ref().child("users").child(state.id);
+    TaskSnapshot snapshot = await ref.putFile(image);
+    String profilePicUrl = await snapshot.ref.getDownloadURL();
+    await _firestore
+        .collection("users")
+        .doc(state.id)
+        .update({'profilePicture': profilePicUrl});
+    state = state.copyWith(user: state.user.copyWith(profilePicture: profilePicUrl));
+  }
+
   void logout() {
     state = LocalUser(
         id: "error",
         user: FirebaseUser(
-            email: 'error', name: 'error', profilePicture: 'error'));
+            email: 'error',
+            name: 'error',
+            profilePicture: 'assets/twitter.png'));
   }
 }
