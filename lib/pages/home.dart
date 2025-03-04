@@ -1,7 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:twitter_clone/models/tweet.dart';
+import 'package:twitter_clone/pages/create_tweet.dart';
 import 'package:twitter_clone/pages/settings.dart';
+import 'package:twitter_clone/provider/tweet_provider.dart';
 import 'package:twitter_clone/provider/user_provider.dart';
 
 class Home extends ConsumerWidget {
@@ -26,21 +29,32 @@ class Home extends ConsumerWidget {
             ),
           );
         }),
-        actions: [
-          TextButton(
-              onPressed: () {
-                FirebaseAuth.instance.signOut();
-                ref.read(userProvider.notifier).logout();
-              },
-              child: Text("Sign out"))
-        ],
       ),
-      body: Column(
-        children: [
-          Text(currentUser.user.email),
-          Text(currentUser.user.name),
-        ],
-      ),
+      body: ref.watch(feedProvider).when(
+          data: (List<Tweet> tweets) {
+            return ListView.separated(
+                separatorBuilder: (context, index) => Divider(
+                      color: Colors.black,
+                    ),
+                itemCount: tweets.length,
+                itemBuilder: (context, count) {
+                  return ListTile(
+                    leading: CircleAvatar(
+                      foregroundImage: AssetImage(tweets[count].profilePic),
+                    ),
+                    title: Text(tweets[count].name,
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    subtitle: Text(
+                      tweets[count].tweet,
+                      style: TextStyle(color: Colors.black, fontSize: 16),
+                    ),
+                  );
+                });
+          },
+          error: (error, stackTrace) => Text("Error"),
+          loading: () {
+            return CircularProgressIndicator();
+          }),
       drawer: Drawer(
         child: Column(
           children: [
@@ -69,10 +83,13 @@ class Home extends ConsumerWidget {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(onPressed: () {
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => CreateTweet()));
-      }),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => CreateTweet()));
+        },
+        child: Icon(Icons.add),
+      ),
     );
   }
 }
